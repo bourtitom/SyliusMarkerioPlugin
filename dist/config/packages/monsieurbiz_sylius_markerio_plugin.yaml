@@ -1,2 +1,2 @@
 imports:
-    resource: '@MonsieurBizSyliusMarkerioPlugin/Resources/config/config.yaml'
+    resource: '@MonsieurBizSyliusMarkerioPlugin/config/config.yaml'

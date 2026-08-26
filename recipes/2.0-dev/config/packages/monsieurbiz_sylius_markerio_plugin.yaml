@@ -1,0 +1,2 @@
+imports:
+    - { resource: '@MonsieurBizSyliusMarkerioPlugin/config/config.yaml' }

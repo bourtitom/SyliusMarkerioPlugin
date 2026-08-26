@@ -16,9 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
-/**
- * @SuppressWarnings(PHPMD.LongClassName)
- */
 final class MonsieurBizSyliusMarkerioExtension extends Extension
 {
     /**
@@ -26,7 +23,7 @@ final class MonsieurBizSyliusMarkerioExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('services.yaml');
     }
 
@@ -35,6 +32,6 @@ final class MonsieurBizSyliusMarkerioExtension extends Extension
      */
     public function getAlias(): string
     {
-        return 'monsieurbiz_markerio';
+        return 'monsieur_biz_sylius_markerio';
     }
 }

@@ -1,0 +1,12 @@
+{% set project = monsieurbiz_markerio_project_id(area) %}
+{% if project is not empty %}
+    {% set json_encode_options = constant('JSON_HEX_TAG') + constant('JSON_HEX_AMP') + constant('JSON_HEX_APOS') + constant('JSON_HEX_QUOT') %}
+    <script>
+        window.markerConfig = {
+            project: {{ project|json_encode(json_encode_options)|raw }},
+            source: 'snippet',
+            customData: {{ monsieurbiz_markerio_custom_data(area)|json_encode(json_encode_options)|raw }}
+        };
+        !function(e,r,a){if(!e.__Marker){e.__Marker={};var t=[],n={__cs:t};["show","hide","isVisible","capture","cancelCapture","unload","reload","isExtensionInstalled","setReporter","setCustomData","on","off"].forEach(function(e){n[e]=function(){var r=Array.prototype.slice.call(arguments);r.unshift(e),t.push(r)}}),e.Marker=n;var s=r.createElement("script");s.async=1,s.src="https://edge.marker.io/latest/shim.js";var i=r.getElementsByTagName("script")[0];i.parentNode.insertBefore(s,i)}}(window,document);
+    </script>
+{% endif %}

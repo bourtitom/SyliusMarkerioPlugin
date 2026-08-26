@@ -1,0 +1,14 @@
+imports:
+    - { resource: 'twig_hooks/*.yaml' }
+
+monsieurbiz_sylius_settings:
+    plugins:
+        monsieurbiz.markerio:
+            vendor_name: 'Monsieur Biz'
+            vendor_url: 'https://monsieurbiz.com/'
+            plugin_name: 'monsieurbiz_sylius_markerio_plugin.settings.plugin_name'
+            description: 'monsieurbiz_sylius_markerio_plugin.settings.description'
+            icon: 'bi:send'
+            use_locales: false
+            classes:
+                form: MonsieurBiz\SyliusMarkerioPlugin\Form\Type\MarkerioSettingsType

@@ -18,7 +18,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 final class MarkerioSettingsType extends AbstractSettingsType
 {
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings("PHPMD.UnusedFormalParameter")
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

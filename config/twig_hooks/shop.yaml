@@ -1,0 +1,6 @@
+sylius_twig_hooks:
+    hooks:
+        'sylius_shop.base#javascripts':
+            monsieurbiz_markerio:
+                template: '@MonsieurBizSyliusMarkerioPlugin/shop/metadata.html.twig'
+                priority: -100

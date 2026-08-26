@@ -1,6 +1,0 @@
-monsieurbiz_markerio_shop_partial_metadata:
-    path: /_partial/markerio/metadata
-    controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController::templateAction
-    methods: GET
-    defaults:
-        template: '@MonsieurBizSyliusMarkerioPlugin/metadata.html.twig'
