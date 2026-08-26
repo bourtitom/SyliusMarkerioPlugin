@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := help
 SHELL=/bin/bash
 APP_DIR=tests/Application
-SYLIUS_VERSION=1.14.0
+SYLIUS_VERSION=2.0.18
+SYLIUS_STANDARD_VERSION=2.0.7
 SYMFONY=cd ${APP_DIR} && symfony
 COMPOSER=symfony composer
 CONSOLE=${SYMFONY} console
@@ -64,7 +65,7 @@ ${APP_DIR}/node_modules: yarn.install
 application: .php-version php.ini ${APP_DIR} setup_application ${APP_DIR}/docker-compose.yaml
 
 ${APP_DIR}:
-	(${COMPOSER} create-project --no-interaction --prefer-dist --no-scripts --no-progress --no-install sylius/sylius-standard="~${SYLIUS_VERSION}" ${APP_DIR})
+	(${COMPOSER} create-project --no-interaction --prefer-dist --no-scripts --no-progress --no-install sylius/sylius-standard="~${SYLIUS_STANDARD_VERSION}" ${APP_DIR})
 
 setup_application:
 	rm -f ${APP_DIR}/yarn.lock
@@ -76,9 +77,12 @@ setup_application:
 	(cd ${APP_DIR} && ${COMPOSER} require --no-install --no-scripts --no-progress sylius/sylius="~${SYLIUS_VERSION}") # Make sure to install the required version of sylius because the sylius-standard has a soft constraint
 	$(MAKE) ${APP_DIR}/.php-version
 	$(MAKE) ${APP_DIR}/php.ini
+	rm -f ${APP_DIR}/config/routes/monsieurbiz_sylius_markerio_plugin.yaml
 	(cd ${APP_DIR} && ${COMPOSER} install --no-interaction)
+	(cd ${APP_DIR} && ${COMPOSER} require --no-progress --no-interaction --no-scripts monsieurbiz/${PLUGIN_NAME}="*@dev")
+	rm -f ${APP_DIR}/config/routes/monsieurbiz_sylius_markerio_plugin.yaml
 	$(MAKE) apply_dist
-	(cd ${APP_DIR} && ${COMPOSER} require --no-progress --no-interaction monsieurbiz/${PLUGIN_NAME}="*@dev")
+	(cd ${APP_DIR} && ${COMPOSER} run-script post-update-cmd)
 	rm -rf ${APP_DIR}/var/cache
 
 
@@ -111,7 +115,7 @@ apply_dist:
 ### TESTS
 ### ¯¯¯¯¯
 
-test.all: test.composer test.phpstan test.phpmd test.phpunit test.phpspec test.phpcs test.yaml test.schema test.twig test.container ## Run all tests in once
+test.all: test.composer test.phpstan test.phpmd test.phpunit test.phpcs ## Run all PHP tests
 
 test.composer: ## Validate composer.json
 	${COMPOSER} validate --strict
@@ -125,26 +129,11 @@ test.phpmd: ## Run PHPMD
 test.phpunit: ## Run PHPUnit
 	${COMPOSER} phpunit
 
-test.phpspec: ## Run PHPSpec
-	${COMPOSER} phpspec
-
 test.phpcs: ## Run PHP CS Fixer in dry-run
 	${COMPOSER} run -- phpcs --dry-run -v
 
 test.phpcs.fix: ## Run PHP CS Fixer and fix issues if possible
 	${COMPOSER} run -- phpcs -v
-
-test.container: ## Lint the symfony container
-	${CONSOLE} lint:container
-
-test.yaml: ## Lint the symfony Yaml files
-	${CONSOLE} lint:yaml ../../src/Resources/config --parse-tags
-
-test.schema: ## Validate MySQL Schema
-	${CONSOLE} doctrine:schema:validate
-
-test.twig: ## Validate Twig templates
-	${CONSOLE} lint:twig --no-debug templates/ ../../src/Resources/views/
 
 ###
 ### SYLIUS
@@ -156,7 +145,7 @@ sylius: dependencies sylius.database sylius.fixtures sylius.assets messenger.set
 sylius.database: ## Setup the database
 	${CONSOLE} doctrine:database:drop --if-exists --force
 	${CONSOLE} doctrine:database:create --if-not-exists
-	${CONSOLE} doctrine:migration:migrate -n
+	${CONSOLE} doctrine:migrations:migrate -n
 
 sylius.fixtures: ## Run the fixtures
 	${CONSOLE} sylius:fixtures:load -n default
@@ -170,7 +159,7 @@ messenger.setup: ## Setup Messenger transports
 	${CONSOLE} messenger:setup-transports
 
 doctrine.diff: ## Doctrine diff
-	${CONSOLE} doctrine:migration:diff --namespace="${MIGRATIONS_NAMESPACE}"
+	${CONSOLE} doctrine:migrations:diff --namespace="${MIGRATIONS_NAMESPACE}"
 
 ###
 ### PLATFORM

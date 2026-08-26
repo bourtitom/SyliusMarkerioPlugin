@@ -2,7 +2,7 @@ name: Flex Recipe
 
 on:
     push:
-        branches: [ master ]
+        branches: [ 2.x ]
     pull_request:
 
 jobs:
@@ -16,8 +16,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php: ['8.2', '8.3']
-                sylius: ["~1.12.0", "~1.13.0", "~1.14.0"]
+                php: ['8.3']
+                sylius: ["~2.0.0"]
 
         steps:
             - name: Setup PHP
@@ -32,7 +32,7 @@ jobs:
               run: |
                   echo ${{ matrix.php }} > .php-version
 
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
               with:
                   path: plugin
 
@@ -42,7 +42,7 @@ jobs:
               run: echo "directory=$(composer config cache-dir)" >> $GITHUB_OUTPUT
 
             - name: Cache dependencies installed with composer
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               id: cache-composer
               with:
                   path: ${{ steps.composer-cache-directory.outputs.directory }}
@@ -65,18 +65,11 @@ jobs:
               run: |
                   composer require --no-install --no-scripts --no-progress sylius/sylius="${{ matrix.sylius }}"
 
-            # Because of an issue with the autoloading of api-platform
-            - name: Constraint of api-platform/core
-              working-directory: ./sylius
-              run: |
-                  composer require --no-install --no-scripts --no-progress api-platform/core="2.7.16"
-
             - name: Setup some requirements
               working-directory: ./sylius
               run: |
                   composer config --no-plugins allow-plugins true
                   composer config --no-plugins extra.symfony.allow-contrib true
-                  composer config --no-plugins secure-http false
                   composer config --no-plugins --unset platform.php
                   composer config --no-plugins extra.symfony.docker false
                   composer config --no-plugins --json extra.symfony.endpoint '["https://api.github.com/repos/monsieurbiz/symfony-recipes/contents/index.json?ref=flex/master","flex://defaults"]'

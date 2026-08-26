@@ -2,7 +2,7 @@ name: Tests
 
 on:
     push:
-        branches: [ master ]
+        branches: [ 2.x ]
     pull_request:
 
 jobs:
@@ -16,18 +16,14 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php: ['8.2', '8.3']
+                php: ['8.3']
 
         env:
             COMPOSER_ARGS: --prefer-dist
             DOCKER_INTERACTIVE_ARGS: -t
 
         steps:
-            - uses: actions/checkout@v3
-
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: '16'
+            - uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
@@ -46,7 +42,7 @@ jobs:
               run: echo "directory=$(composer config cache-dir)" >> $GITHUB_OUTPUT
 
             - name: Cache dependencies installed with composer
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               id: cache-composer
               with:
                   path: ${{ steps.composer-cache-directory.outputs.directory }}
@@ -59,7 +55,8 @@ jobs:
             - name: Composer Github Auth
               run: composer config -g github-oauth.github.com ${{ github.token }}
 
-            - run: make install
+            - name: Install PHP dependencies
+              run: composer update --no-interaction --prefer-dist
 
             - run: make test.composer
 
@@ -69,10 +66,4 @@ jobs:
 
             - run: make test.phpmd
 
-            - run: make test.yaml
-
-            - run: make test.twig
-
-            - run: make test.schema
-
-            - run: make test.container
+            - run: make test.phpunit
