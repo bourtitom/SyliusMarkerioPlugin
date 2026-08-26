@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Monsieur Biz's  for Sylius.
+ * This file is part of Monsieur Biz's Marker.io Plugin for Sylius.
  * (c) Monsieur Biz <sylius@monsieurbiz.com>
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,10 +12,14 @@ declare(strict_types=1);
 namespace MonsieurBiz\SyliusMarkerioPlugin\Provider;
 
 use InvalidArgumentException;
+use Sylius\Component\Channel\Context\ChannelNotFoundException;
 use Sylius\Component\Core\Context\ShopperContextInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Currency\Context\CurrencyNotFoundException;
+use Sylius\Component\Locale\Context\LocaleNotFoundException;
 use Sylius\Component\Order\Context\CartContextInterface;
+use Sylius\Component\Order\Context\CartNotFoundException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -35,10 +39,19 @@ final class MarkerioContextProvider
     public function getData(string $area): array
     {
         return match ($area) {
-            self::SHOP_AREA => $this->getShopData(),
+            self::SHOP_AREA => $this->getShopDataSafely(),
             self::ADMIN_AREA => $this->getAdminData(),
             default => throw new InvalidArgumentException(\sprintf('Unknown Marker.io area "%s".', $area)),
         };
+    }
+
+    private function getShopDataSafely(): array
+    {
+        try {
+            return $this->getShopData();
+        } catch (ChannelNotFoundException|CurrencyNotFoundException|LocaleNotFoundException) {
+            return [];
+        }
     }
 
     private function getShopData(): array
@@ -82,7 +95,15 @@ final class MarkerioContextProvider
 
     private function getCartData(): array
     {
-        $cart = $this->cartContext->getCart();
+        try {
+            $cart = $this->cartContext->getCart();
+        } catch (CartNotFoundException) {
+            return [
+                'total' => 0,
+                'items' => [],
+            ];
+        }
+
         $items = [];
 
         foreach ($cart->getItems() as $item) {
