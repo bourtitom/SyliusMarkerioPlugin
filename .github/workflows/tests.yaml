@@ -55,8 +55,8 @@ jobs:
             - name: Composer Github Auth
               run: composer config -g github-oauth.github.com ${{ github.token }}
 
-            - name: Install PHP dependencies
-              run: composer update --no-interaction --prefer-dist
+            - name: Install plugin and test application
+              run: make test.application
 
             - run: make test.composer
 
@@ -67,3 +67,9 @@ jobs:
             - run: make test.phpmd
 
             - run: make test.phpunit
+
+            - run: make test.yaml
+
+            - run: make test.twig
+
+            - run: make test.container

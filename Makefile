@@ -115,7 +115,10 @@ apply_dist:
 ### TESTS
 ### ¯¯¯¯¯
 
-test.all: test.composer test.phpstan test.phpmd test.phpunit test.phpcs ## Run all PHP tests
+test.all: test.application test.composer test.phpstan test.phpmd test.phpunit test.phpcs test.yaml test.twig test.container ## Run all tests
+
+test.application: composer.lock application ## Install the plugin and test application without infrastructure
+.PHONY: test.application
 
 test.composer: ## Validate composer.json
 	${COMPOSER} validate --strict
@@ -134,6 +137,15 @@ test.phpcs: ## Run PHP CS Fixer in dry-run
 
 test.phpcs.fix: ## Run PHP CS Fixer and fix issues if possible
 	${COMPOSER} run -- phpcs -v
+
+test.container: ## Lint the Symfony container
+	${CONSOLE} lint:container
+
+test.yaml: ## Lint the YAML configuration and translations
+	${CONSOLE} lint:yaml ../../config ../../dist/config ../../translations ../../recipes/2.0-dev/config --parse-tags
+
+test.twig: ## Lint the Twig templates
+	${CONSOLE} lint:twig --no-debug ../../templates
 
 ###
 ### SYLIUS
